@@ -1,5 +1,5 @@
 {
-  "name": "stickersmash",
+  "name": "ZTrade",
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
+    "@react-native-clipboard/clipboard": "^1.14.1",
     "@react-native-community/datetimepicker": "^8.1.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",

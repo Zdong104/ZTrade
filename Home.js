@@ -1,11 +1,46 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, TextInput, Alert,  KeyboardAvoidingView, Platform  } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import * as PortfolioAllocation from 'portfolio-allocation';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const stocks = ['aapl', 'amd', 'amzn', 'f', 'goog', 'gs', 'intc', 'ko', 'meta', 'msft', 'nflx', 'nvda', 'tsla', 'v'];
+const stocks = [
+  'aapl',  // Apple Inc.
+  'amd',   // Advanced Micro Devices Inc.
+  'amzn',  // Amazon.com Inc.
+  'f',     // Ford Motor Co.
+  'goog',  // Alphabet Inc. (Google)
+  'gs',    // Goldman Sachs Group Inc.
+  'intc',  // Intel Corp.
+  'ko',    // Coca-Cola Co.
+  'meta',  // Meta Platforms Inc. (Facebook)
+  'msft',  // Microsoft Corp.
+  'nflx',  // Netflix Inc.
+  'nvda',  // NVIDIA Corp.
+  'tsla',  // Tesla Inc.
+  'v',     // Visa Inc.
+  'axp',   // American Express Co.
+  'ba',    // Boeing Co.
+  'cat',   // Caterpillar Inc.
+  'csco',  // Cisco Systems Inc.
+  'cvx',   // Chevron Corp.
+  'dis',   // Walt Disney Co.
+  'dow',   // Dow Inc.
+  'hd',    // Home Depot Inc.
+  'hon',   // Honeywell International Inc.
+  'ibm',   // International Business Machines Corp.
+  'jnj',   // Johnson & Johnson
+  'jpm',   // JPMorgan Chase & Co.
+  'mcd',   // McDonald's Corp.
+  'mmm',   // 3M Co.
+  'mrk',   // Merck & Co. Inc.
+  'nke',   // Nike Inc.
+  'pg',    // Procter & Gamble Co.
+  'trv',   // Travelers Companies Inc.
+  'unh',   // UnitedHealth Group Inc.
+];
+
 
 const Home = () => {
   const [selectedStocks, setSelectedStocks] = useState([]);
@@ -19,14 +54,15 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [basket, setBasket] = useState([]);
 
-// Section for Model
+  // Section for Model
   const fetchDataAndRunModel = async () => {
     setResults(null);
-    console.log('\n\nSelected Stocks: ', basket)
+    const sortedBasket = [...basket].sort();
+    console.log('\n\nSelected Stocks: ', sortedBasket);
     try {
-      const stockData = await fetchStockData(basket, startDate, endDate);
-      console.log('\n\nStockData:', stockData)
-      const modelResults = runModel(stockData);
+      const stockData = await fetchStockData(sortedBasket, startDate, endDate);
+      console.log('\n\nStockData:', stockData);
+      const modelResults = runModel(stockData, sortedBasket);
       setResults(modelResults);
     } catch (error) {
       Alert.alert('Error', 'The input list cannot be empty. Please check the basket or date length.');
@@ -41,7 +77,7 @@ const Home = () => {
     const fetchTickerData = async (ticker) => {
       const url = `https://query1.finance.yahoo.com/v7/finance/download/${ticker}?period1=${Math.floor(new Date(startDate).getTime() / 1000)}&period2=${Math.floor(new Date(endDate).getTime() / 1000)}&interval=1d&events=history`;
       const response = await axios.get(url);
-      console.log('\n Catched data from Server\n:', response, '\n\n')
+      console.log('\n Catched data from Server\n:', response, '\n\n');
       const rows = response.data.split('\n').slice(1);
       const formattedRows = rows.map(row => {
         const [date, , , , , adj_close,] = row.split(',');
@@ -56,9 +92,9 @@ const Home = () => {
     return results.flat();
   };
 
-  const runModel = (data) => {
+  const runModel = (data, sortedBasket) => {
     const processDfForMvo = (df) => {
-      const stockDimension = df.length / selectedStocks.length;
+      const stockDimension = df.length / sortedBasket.length;
       df.sort((a, b) => (a.date > b.date ? 1 : -1));
 
       let tic = [...new Set(df.map((item) => item.tic))];
@@ -95,7 +131,7 @@ const Home = () => {
         for (let i = 0; i < rows - 1; i++) { // i: Daily Prices
           let prevPrice = stockPrices[i][j];
           let currPrice = stockPrices[i + 1][j];
-          stockReturn[i][j] = ((currPrice - prevPrice) / prevPrice) * 100;
+          stockReturn[i][j] = ((currPrice - prevPrice) / prevPrice);
         }
       }
 
@@ -172,19 +208,23 @@ const Home = () => {
     };
 
     const stockData = processDfForMvo(data);
-    console.log('First Step Process', stockData, '\n\n\n\n\n\n\n')
-    const arStockPrices = stockData.map((row) => Object.values(row).slice(1)); // Exclude date column
-    console.log('\n\n arStockPrices:', arStockPrices)
+    console.log('First Step Process', stockData, '\n\n\n\n\n\n\n');
+    const arStockPrices = stockData.map((row) => {
+      const { date, ...prices } = row;
+      return Object.keys(prices).sort().map(key => prices[key]);
+    });
+
+    console.log('\n\n arStockPrices:', arStockPrices);
     const [rows, cols] = [arStockPrices.length, arStockPrices[0].length];
 
     const arReturns = stockReturnsComputing(arStockPrices); //arReturns is Asset return in 100% scale
-    console.log('\n\n arReturns:', arReturns)
+    console.log('\n\n arReturns:', arReturns);
 
-    const meanReturns = calculateMeanReturns(arReturns) // still in 100%
-    console.log('\n\n meanReturns:', meanReturns)
+    const meanReturns = calculateMeanReturns(arReturns); // still in 100%
+    console.log('\n\n meanReturns:', meanReturns);
 
     const covReturns = calculateCovarianceMatrix(arReturns, meanReturns); // Calculate the Covariance value
-    console.log('Con Variance Value: ', covReturns)
+    console.log('Con Variance Value: ', covReturns);
 
     // Compute the maximum Sharpe ratio portfolio weights
     const maxSharpeWeights = calculateMaxSharpe(meanReturns, covReturns);
@@ -195,8 +235,6 @@ const Home = () => {
 
     return { meanReturns, covReturns, maxSharpeWeights, ercWeights };
   };
-
-
 
   // Below just display and the visualization
 
@@ -213,10 +251,10 @@ const Home = () => {
     setBasket([...basket, ...newStocks]);
     setSelectedStocks([]);
   };
-  
 
   const clearBasket = () => {
     setBasket([]);
+    setResults(null);
   };
 
   const onChangeStart = (event, selectedDate) => {
@@ -229,144 +267,142 @@ const Home = () => {
     setEndDate(currentDate);
   };
 
-  const capitalize = (str) => str.toUpperCase();
+  const capitalize = (str) => (str ? str.toUpperCase() : '');
 
   const filteredStocks = stocks.filter(stock => stock.toUpperCase().includes(searchTerm.toUpperCase()));
 
   return (
-      <FlatList
-        style={styles.container}
-        data={filteredStocks}
-        keyExtractor={(item) => item}
-        ListHeaderComponent={() => (
-          <>
-            <Text style={styles.header}>Search and Select Stocks:</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search stocks..."
-              value={searchTerm}
-              onChangeText={setSearchTerm}
-            />
+    <FlatList
+      style={styles.container}
+      data={filteredStocks}
+      keyExtractor={(item) => item}
+      ListHeaderComponent={() => (
+        <>
+          <Text style={styles.header}>Search and Select Stocks:</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search stocks..."
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+          />
 
-            {filteredStocks.reduce((rows, stock, index) => {
-              if (index % 5 === 0) rows.push([]);
-              rows[rows.length - 1].push(stock);
-              return rows;
-            }, []).map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.stockRow}>
-                {row.map((stock) => (
-                  <TouchableOpacity  key={stock}  onPress={() => toggleStockSelection(stock)}  style={[ styles.stockItem,
-                  selectedStocks.includes(stock) && styles.selectedStockItem,]} >
+          {filteredStocks.slice(0, 10).reduce((rows, stock, index) => {
+            if (index % 5 === 0) rows.push([]);
+            rows[rows.length - 1].push(stock);
+            return rows;
+          }, []).map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.stockRow}>
+              {row.map((stock) => (
+                <TouchableOpacity key={stock} onPress={() => toggleStockSelection(stock)} style={[styles.stockItem,
+                selectedStocks.includes(stock) && styles.selectedStockItem,]}>
                   <Text style={styles.stockText}> {capitalize(stock)} </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))}
-
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={addToBasket}>
-                <Text style={styles.buttonText}>Add to Basket</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={clearBasket}>
-                <Text style={styles.buttonText}>Clear Basket</Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              ))}
             </View>
-            <View style={styles.basketContainer}>
-              <Text style={styles.basketHeader}>Basket:</Text>
-              <View style={styles.basketItems}>
-                {basket.map((stock, index) => (
-                  <Text key={index} style={styles.basketItem}>{capitalize(stock)}</Text>
-                ))}
-              </View>
+          ))}
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={addToBasket}>
+              <Text style={styles.buttonText}>Add to Basket</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={clearBasket}>
+              <Text style={styles.buttonText}>Clear Basket</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.basketContainer}>
+            <Text style={styles.basketHeader}>Basket:</Text>
+            <View style={styles.basketItems}>
+              {basket.sort().map((stock, index) => (
+                <Text key={index} style={styles.basketItem}>{capitalize(stock)}</Text>
+              ))}
             </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Risk-Free Rate:</Text>
-              <TextInput
-                style={styles.input}
-                value={riskFreeRate ? String(riskFreeRate) : ''}
-                onChangeText={(text) => setRiskFreeRate(parseFloat(text) || 0)}
-                keyboardType="numeric"
-                placeholder="Enter risk-free rate"
-                placeholderTextColor="#C7C7CD" //
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Risk-Free Rate:</Text>
+            <TextInput
+              style={styles.input}
+              value={riskFreeRate ? String(riskFreeRate) : ''}
+              onChangeText={(text) => setRiskFreeRate(parseFloat(text) || 0)}
+              keyboardType="numeric"
+              placeholder="Enter risk-free rate"
+              placeholderTextColor="#C7C7CD" //
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Total Amount to Allocate:</Text>
+            <TextInput
+              style={styles.input}
+              value={totalAmount ? String(totalAmount) : ''}
+              onChangeText={(text) => setTotalAmount(parseFloat(text) || 0)}
+              keyboardType="numeric"
+              placeholder="Enter total amount"
+              placeholderTextColor="#C7C7CD"
+            />
+          </View>
+
+          <View style={styles.datePickerContainer}>
+            <View style={styles.datePicker}>
+              <Text style={styles.datePickerText}>Select Start Date</Text>
+              <DateTimePicker
+                value={startDate}
+                mode="date"
+                display="default"
+                onChange={onChangeStart}
+                style={styles.datePickerWrapper}
               />
             </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Total Amount to Allocate:</Text>
-              <TextInput
-                style={styles.input}
-                value={totalAmount ? String(totalAmount) : ''}
-                onChangeText={(text) => setTotalAmount(parseFloat(text) || 0)}
-                keyboardType="numeric"
-                placeholder="Enter total amount"
-                placeholderTextColor="#C7C7CD"
+            <View style={styles.datePicker}>
+              <Text style={styles.datePickerText}>Select End Date</Text>
+              <DateTimePicker
+                value={endDate}
+                mode="date"
+                display="default"
+                onChange={onChangeEnd}
+                style={styles.datePickerWrapper}
               />
             </View>
+          </View>
 
-
-            <View style={styles.datePickerContainer}>
-              <View style={styles.datePicker}>
-                <Text style={styles.datePickerText}>Select Start Date</Text>
-                <DateTimePicker
-                  value={startDate}
-                  mode="date"
-                  display="default"
-                  onChange={onChangeStart}
-                  style={styles.datePickerWrapper}
-                />
+          <Button title="Run Model" onPress={fetchDataAndRunModel} style={styles.runButton} />
+        </>
+      )}
+      ListFooterComponent={() => (
+        results && (
+          <View style={styles.resultsContainer}>
+            <View style={styles.resultCard}>
+              <View style={styles.resultHeaderContainer}>
+                <Text style={styles.resultHeader}>Mean Returns %:</Text>
               </View>
-              <View style={styles.datePicker}>
-                <Text style={styles.datePickerText}>Select End Date</Text>
-                <DateTimePicker
-                  value={endDate}
-                  mode="date"
-                  display="default"
-                  onChange={onChangeEnd}
-                  style={styles.datePickerWrapper}
-                />
-              </View>
+              {results.meanReturns.map((returnVal, index) => (
+                <Text key={basket[index]} style={styles.resultContent}>
+                  {capitalize(basket[index])}: {returnVal.toFixed(4)}
+                </Text>
+              ))}
             </View>
-
-            <Button title="Run Model" onPress={fetchDataAndRunModel} style={styles.runButton} />
-          </>
-        )}
-        ListFooterComponent={() => (
-          results && (
-            <View style={styles.resultsContainer}>
-              <View style={styles.resultCard}>
-                <View style={styles.resultHeaderContainer}>
-                  <Text style={styles.resultHeader}>Mean Returns %:</Text>
-                </View>
-                {results.meanReturns.map((returnVal, index) => (
-                  <Text key={basket[index]} style={styles.resultContent}>
-                    {capitalize(basket[index])}: {returnVal.toFixed(4)}
-                  </Text>
-                ))}
+            <View style={styles.resultCard}>
+              <View style={styles.resultHeaderContainer}>
+                <Text style={styles.resultHeader}>Max Sharpe Ratio Weights:</Text>
               </View>
-              <View style={styles.resultCard}>
-                <View style={styles.resultHeaderContainer}>
-                  <Text style={styles.resultHeader}>Max Sharpe Ratio Weights:</Text>
-                </View>
-                {results.maxSharpeWeights.map((weight, index) => (
-                  <Text key={basket[index]} style={styles.resultContent}>
-                    {capitalize(basket[index])}: {weight.toFixed(2)}
-                  </Text>
-                ))}
-              </View>
-              <View style={styles.resultCard}>
-                <View style={styles.resultHeaderContainer}>
-                  <Text style={styles.resultHeader}>Equal Risk Contribution (ERC) Weights:</Text>
-                </View>
-                {results.ercWeights.map((weight, index) => (
-                  <Text key={basket[index]} style={styles.resultContent}>
-                    {capitalize(basket[index])}: {weight.toFixed(2)}
-                  </Text>
-                ))}
-              </View>
+              {results.maxSharpeWeights.map((weight, index) => (
+                <Text key={basket[index]} style={styles.resultContent}>
+                  {capitalize(basket[index])}: {weight.toFixed(2)}
+                </Text>
+              ))}
             </View>
-          )
-        )}
-      />
+            <View style={styles.resultCard}>
+              <View style={styles.resultHeaderContainer}>
+                <Text style={styles.resultHeader}>Equal Risk Contribution (ERC) Weights:</Text>
+              </View>
+              {results.ercWeights.map((weight, index) => (
+                <Text key={basket[index]} style={styles.resultContent}>
+                  {capitalize(basket[index])}: {weight.toFixed(2)}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )
+      )}
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-rootProject.name = 'StickerSmash'
+rootProject.name = 'ZTrade'
 
 dependencyResolutionManagement {
   versionCatalogs {

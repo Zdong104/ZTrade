@@ -1,6 +1,6 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // If you use Expo
 import Home from './Home';
 import Questions from './Questions';
@@ -25,11 +25,15 @@ export default function App() {
             }
             return <TabBarIcon name={iconName} color={color} />;
           },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: [
+            {
+              display: 'flex'
+            },
+            null
+          ],
         })}
-        tabBarOptions={{
-          activeTintColor: 'tomato',
-          inactiveTintColor: 'gray',
-        }}
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Questions" component={Questions} />
