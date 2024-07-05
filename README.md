@@ -33,8 +33,6 @@ npx expo prebuild
    
     <img width="1156" alt="4" src="https://github.com/Zdong104/ZTrade/assets/77849792/ae740bae-449c-49de-9279-b860fb2a5607">
 
-    ![Run Release](https://github.com/AInsight-AI/ViSportApp/assets/168395410/6ea0cf73-df42-466e-9d59-7a039b736560)
-
 ## Install the Expo App
 ```bash
 npm install expo
