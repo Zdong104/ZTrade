@@ -1,17 +1,11 @@
-# Project README
-
-## TODOs
-1. 对接后端，调通主页上的东西：视频， data, recent searches.
-2. Events page的东西需要和后端对接。
-3. 对接后端，本地部署来测试upload的部分。
-
 ## Quick Start
 
 Use this template and follow the instructions to build the app: [Expo First App Tutorial](https://docs.expo.dev/tutorial/create-your-first-app/)
 
 > **Note:** Do not use the `.tsx` style file; it's too complicated and unnecessary for this project. Your folder structure should look like the screenshot below:
 
-![Folder Structure](https://github.com/AInsight-AI/ViSportApp/assets/168395410/921aad03-33e7-460c-8851-08223e50ce2d)
+<img width="772" alt="1" src="https://github.com/Zdong104/ZTrade/assets/77849792/eee81d57-5b92-45ff-a4a8-1e74935fb15c">
+
 
 ### Create the Project
 ```bash
@@ -30,10 +24,14 @@ npx expo prebuild
 ### Run on a Local Device Without a Server
 1. Open the `ios/StickerSmash.xcworkspace` file in Xcode.
 2. Click on the Project as shown below:
-    ![Project Selection](https://github.com/AInsight-AI/ViSportApp/assets/168395410/3907c489-5733-4caf-a3fa-12fa23d01a65)
+    <img width="1446" alt="2" src="https://github.com/Zdong104/ZTrade/assets/77849792/6f75b822-79cc-4e48-994a-5b2d70d972c1">
 3. Click `Product` -> `Scheme` -> `Edit Scheme`:
+    <img width="454" alt="3" src="https://github.com/Zdong104/ZTrade/assets/77849792/961e60ee-2843-43b1-9309-0de773611679">
+
     ![Edit Scheme](https://github.com/AInsight-AI/ViSportApp/assets/168395410/22de13dd-ba61-45a9-ba04-ce96b31e2175)
 4. Under `Run`, select `Release` instead of `Debug`:
+    <img width="1156" alt="4" src="https://github.com/Zdong104/ZTrade/assets/77849792/ae740bae-449c-49de-9279-b860fb2a5607">
+
     ![Run Release](https://github.com/AInsight-AI/ViSportApp/assets/168395410/6ea0cf73-df42-466e-9d59-7a039b736560)
 
 ## Install the Expo App
