@@ -24,8 +24,6 @@ import itertools
 from pypfopt import risk_models, expected_returns, EfficientFrontier
 
 
-
-
 symbols = [
     "aapl", "amd", "amzn", "axp", "ba", "cat", "csco", "cvx", "dis", "dow", "f", "goog", "gs", "hd", 
     "hon", "ibm", "intc", "jnj", "jpm", "ko", "mcd", "meta", "mmm", "mrk", "msft", "nflx", "nke", 
@@ -203,7 +201,3 @@ def run_model_endpoint():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000)
-
-
-    
-

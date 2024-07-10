@@ -19,8 +19,10 @@ struct ModelInputChinese: Codable {
 
 struct ModelOutputChinese: Codable {
     var meanReturns: [Double]
-    var maxSharpeWeights: [Double]
-    var ercWeights: [Double]
+    var Allocated_Weights: [Double]
+    var Expected_annual_return: [Double]
+    var Annual_volatility: [Double]
+    var Sharpe_Ratio: [Double]
 }
 
 struct HomeChineseView: View {
@@ -44,56 +46,55 @@ struct HomeChineseView: View {
     }
 
     let stockMap: [String: String] = [
-        "sh600519": "贵州茅台",
-        "sh601318": "中国平安",
-        "sh600036": "招商银行",
-        "sh601899": "紫金矿业",
-        "sh600900": "长江电力",
-        "sh601166": "兴业银行",
-        "sh601398": "工商银行",
-        "sh600276": "恒瑞医药",
-        "sh600030": "中信证券",
-        "sh600887": "伊利股份",
-        "sh600309": "万华化学",
-        "sh601288": "农业银行",
-        "sh601088": "中国神华",
-        "sh600028": "中国石化",
-        "sh600809": "山西汾酒",
-        "sh601668": "中国建筑",
-        "sh601857": "中国石油",
-        "sh601012": "隆基绿能",
-        "sh600690": "海尔智家",
-        "sh601225": "陕西煤业",
-        "sh601601": "中国太保",
-        "sh600031": "三一重工",
-        "sh601919": "中远海控",
-        "sh601988": "中国银行",
-        "sh601728": "中国电信",
-        "sh600406": "国电南瑞",
-        "sh688981": "中芯国际",
-        "sh600050": "中国联通",
-        "sh603259": "药明康德",
-        "sh600150": "中国船舶",
-        "sh600089": "特变电工",
-        "sh600048": "保利发展",
-        "sh601888": "中国中免",
-        "sh600436": "片仔癀",
-        "sh603501": "韦尔股份",
-        "sh601390": "中国中铁",
-        "sh688041": "海光信息",
-        "sh600104": "上汽集团",
-        "sh600438": "通威股份",
-        "sh603288": "海天味业",
-        "sh688111": "金山办公",
-        "sh603986": "兆易创新",
-        "sh601628": "中国人寿",
-        "sh601669": "中国电建",
-        "sh601633": "长城汽车",
-        "sh600941": "中国移动",
-        "sh601328": "交通银行",
-        "sh601658": "邮储银行",
-        "sh601985": "中国核电",
-        "sh688012": "中微公司"
+        "600028.SS": "中国石化",
+        "600030.SS": "中信证券",
+        "600031.SS": "三一重工",
+        "600036.SS": "招商银行",
+        "600048.SS": "保利发展",
+        "600050.SS": "中国联通",
+        "600089.SS": "特变电工",
+        "600104.SS": "上汽集团",
+        "600150.SS": "中国船舶",
+        "600276.SS": "恒瑞医药",
+        "600309.SS": "万华化学",
+        "600406.SS": "国电南瑞",
+        "600436.SS": "片仔癀",
+        "600438.SS": "通威股份",
+        "600487.SS": "山西汾酒",
+        "600690.SS": "海尔智家",
+        "600809.SS": "山西汾酒",
+        "600887.SS": "伊利股份",
+        "600900.SS": "长江电力",
+        "600941.SS": "中国移动",
+        "601012.SS": "隆基绿能",
+        "601088.SS": "中国神华",
+        "601166.SS": "兴业银行",
+        "601225.SS": "陕西煤业",
+        "601288.SS": "农业银行",
+        "601318.SS": "中国平安",
+        "601328.SS": "交通银行",
+        "601390.SS": "中国中铁",
+        "601398.SS": "工商银行",
+        "601601.SS": "中国太保",
+        "601628.SS": "中国人寿",
+        "601633.SS": "长城汽车",
+        "601658.SS": "邮储银行",
+        "601668.SS": "中国建筑",
+        "601669.SS": "中国电建",
+        "601857.SS": "中国石油",
+        "601888.SS": "中国中免",
+        "601899.SS": "紫金矿业",
+        "601919.SS": "中远海控",
+        "601985.SS": "中国核电",
+        "601988.SS": "中国银行",
+        "603259.SS": "药明康德",
+        "603288.SS": "海天味业",
+        "603501.SS": "韦尔股份",
+        "603986.SS": "兆易创新",
+        "688012.SS": "中微公司",
+        "688041.SS": "海光信息",
+        "688111.SS": "金山办公",
+        "688981.SS": "中芯国际"
     ]
 
     var filteredStocks: [String] {
@@ -147,6 +148,7 @@ struct HomeChineseView: View {
         print("Total Amount: \(totalAmount)")
         print("Start Date: \(startDate)")
         print("End Date: \(endDate)")
+        
 
         // Serialize the data to JSON
         guard let jsonData = try? JSONEncoder().encode(dataToSend) else {
@@ -160,6 +162,7 @@ struct HomeChineseView: View {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
+        print(jsonData)
 
         // Send the request
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -350,22 +353,42 @@ struct HomeChineseView: View {
                                 ForEach(0..<results.meanReturns.count, id: \.self) { index in
                                     Text("\(stockMap[basket[index]] ?? basket[index]): \(results.meanReturns[index], specifier: "%.4f")")
                                 }
-                                Text("最大夏普比例权重:")
+                                Text("分配比例权重:")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.blue.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.maxSharpeWeights.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.maxSharpeWeights[index], specifier: "%.2f")")
+                                ForEach(0..<results.Allocated_Weights.count, id: \.self) { index in
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Allocated_Weights[index], specifier: "%.2f")")
                                 }
-                                Text("等风险贡献 (ERC) 权重:")
+                                Text("期望回报值:")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.green.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.ercWeights.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.ercWeights[index], specifier: "%.2f")")
+                                ForEach(0..<results.Expected_annual_return.count, id: \.self) { index in
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Expected_annual_return[index], specifier: "%.2f")")
                                 }
+                                
+                                Text("最Annual_volatility:")
+                                    .font(.headline)
+                                    .padding()
+                                    .background(Color.blue.opacity(0.2))
+                                    .cornerRadius(8)
+                                ForEach(0..<results.Annual_volatility.count, id: \.self) { index in
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Annual_volatility[index], specifier: "%.2f")")
+                                }
+                                
+                                Text("最Sharpe_Ratio:")
+                                    .font(.headline)
+                                    .padding()
+                                    .background(Color.blue.opacity(0.2))
+                                    .cornerRadius(8)
+                                ForEach(0..<results.Sharpe_Ratio.count, id: \.self) { index in
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Sharpe_Ratio[index], specifier: "%.2f")")
+                                }
+                                
+                                
                             }
                         }
                     }

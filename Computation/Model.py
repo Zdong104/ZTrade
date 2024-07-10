@@ -13,6 +13,11 @@ import time
 
 app = Flask(__name__)
 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+
 # Assume YahooDownloader and symbols are defined elsewhere
 from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer, data_split
@@ -22,8 +27,6 @@ import numpy as np
 from datetime import datetime
 import itertools
 from pypfopt import risk_models, expected_returns, EfficientFrontier
-
-
 
 
 symbols = [
@@ -153,10 +156,10 @@ class PortfolioModel:
 
         results = {
             'meanReturns': [f"{x * 100:.2f}%" for x in mu],
-            'Allocated Weights': [f"{x:.2f}" for x in mvo_weights],
-            'Expected annual return:': f"{report[0] * 100:.2f}%",
-            'Annual volatility:': f"{report[1] * 100:.2f}%",
-            'Sharpe Ratio:': f"{report[2]:.2f}"
+            'Allocated_Weights': [f"{x:.2f}" for x in mvo_weights],
+            'Expected_annual_return:': f"{report[0] * 100:.2f}%",
+            'Annual_volatility:': f"{report[1] * 100:.2f}%",
+            'Sharpe_Ratio:': f"{report[2]:.2f}"
         }
 
         return results
@@ -186,10 +189,23 @@ logging.info("Scheduler started...")
 def home():
     return "Stock data updater is running"
 
-@app.route('/run_model', methods=['POST'])
+@app.route('/process', methods=['POST'])
 def run_model_endpoint():
     input_data = request.json
-    if not input_data or 'basket' not in input_data:
+    print(input_data)
+        # Check if input_data is None
+    if input_data is None:
+        print("Error: No input data received")
+        return jsonify({"error": "Invalid input data"}), 400
+    
+    # Check if 'basket' key is missing
+    if 'basket' not in input_data:
+        print("Error: 'basket' key missing in input data")
+        return jsonify({"error": "Invalid input data"}), 400
+    
+    # Check if 'basket' key is empty
+    if not input_data['basket']:
+        print("Error: 'basket' is empty")
         return jsonify({"error": "Invalid input data"}), 400
     
     try:
@@ -203,7 +219,3 @@ def run_model_endpoint():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000)
-
-
-    
-
