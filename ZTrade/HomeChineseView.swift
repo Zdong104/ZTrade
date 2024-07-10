@@ -7,6 +7,22 @@
 import SwiftUI
 import Combine
 
+
+struct ModelInputChinese: Codable {
+    var basket: [String]
+    var riskFreeRate: Double
+    var totalAmount: Double
+    var startDate: Date
+    var endDate: Date
+    var IsChinese: Bool
+}
+
+struct ModelOutputChinese: Codable {
+    var meanReturns: [Double]
+    var maxSharpeWeights: [Double]
+    var ercWeights: [Double]
+}
+
 struct HomeChineseView: View {
     @Binding var useChinese: Bool
     @Binding var isDarkMode: Bool
@@ -17,7 +33,7 @@ struct HomeChineseView: View {
     @State private var totalAmount: String = "1000"
     @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
     @State private var endDate: Date = Date()
-    @State private var results: Results? = nil
+    @State private var results: ModelOutputChinese? = nil
     @Environment(\.colorScheme) var colorScheme
     @State private var showingAlert = false
 
@@ -114,23 +130,65 @@ struct HomeChineseView: View {
             showingAlert = true
             return
         }
-        //        This section within the ModelChinese.swift
+
         let dataToSend = ModelInputChinese(
-            selectedStocks: selectedStocks,
             basket: basket,
             riskFreeRate: Double(riskFreeRate) ?? 0.0,
             totalAmount: Double(totalAmount) ?? 1000.0,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            IsChinese: useChinese
         )
-
+        
+        // Log the collected data for debugging
+        print("useChinese: \(useChinese)")
         print("Basket: \(basket)")
         print("Risk-Free Rate: \(riskFreeRate)")
         print("Total Amount: \(totalAmount)")
         print("Start Date: \(startDate)")
         print("End Date: \(endDate)")
 
-        results = runModelChinese(with: dataToSend)
+        // Serialize the data to JSON
+        guard let jsonData = try? JSONEncoder().encode(dataToSend) else {
+            print("Failed to encode data")
+            return
+        }
+
+        // Create the URL request
+        let url = URL(string: "http://127.0.0.1:6000/process")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
+
+        // Send the request
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error: \(error)")
+                return
+            }
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+            
+            // Print raw JSON response for debugging
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Raw JSON response: \(jsonString)")
+            }
+            
+            // Decode the response
+                do {
+                    let modelOutput = try JSONDecoder().decode(ModelOutputChinese.self, from: data)
+                    DispatchQueue.main.async {
+                        // Update your results here
+                        results = modelOutput
+                    }
+                } catch {
+                    print("Failed to decode response: \(error)")
+                }
+            }
+        task.resume()
     }
 
     var body: some View {
@@ -199,12 +257,15 @@ struct HomeChineseView: View {
                             VStack(alignment: .leading) {
                                 Text("已选股票:")
                                     .font(.headline)
-                                HStack {
-                                    ForEach(basket, id: \.self) { stock in
-                                        Text(stockMap[stock] ?? stock)
-                                            .padding(5)
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(8)
+                                ForEach(basket.chunked(into: 4), id: \.self) { row in
+                                    HStack {
+                                        ForEach(row, id: \.self) { stock in
+                                            Text(stockMap[stock] ?? stock)
+                                                .padding(5)
+                                                .background(Color.gray.opacity(0.2))
+                                                .cornerRadius(8)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
                                     }
                                 }
                             }

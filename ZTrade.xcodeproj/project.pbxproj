@@ -21,7 +21,6 @@
 		D49BB49B2C3C627F00B70CED /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49A2C3C627F00B70CED /* SettingsView.swift */; };
 		D49BB49D2C3C628D00B70CED /* MyPortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49C2C3C628D00B70CED /* MyPortfolioView.swift */; };
 		D49BB49F2C3C629A00B70CED /* MyPortfolioChineseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49E2C3C629A00B70CED /* MyPortfolioChineseView.swift */; };
-		D49BB4A32C3C6A3A00B70CED /* ModelChinese.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB4A22C3C6A3A00B70CED /* ModelChinese.swift */; };
 		D49BB4AB2C3DA67700B70CED /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = D49BB4AA2C3DA67700B70CED /* PythonKit */; };
 /* End PBXBuildFile section */
 
@@ -61,7 +60,6 @@
 		D49BB49A2C3C627F00B70CED /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D49BB49C2C3C628D00B70CED /* MyPortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPortfolioView.swift; sourceTree = "<group>"; };
 		D49BB49E2C3C629A00B70CED /* MyPortfolioChineseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPortfolioChineseView.swift; sourceTree = "<group>"; };
-		D49BB4A22C3C6A3A00B70CED /* ModelChinese.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelChinese.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +115,6 @@
 				D49BB4692C3C619B00B70CED /* ContentView.swift */,
 				D49BB4922C3C61BE00B70CED /* HomeView.swift */,
 				D49BB4942C3C625500B70CED /* HomeChineseView.swift */,
-				D49BB4A22C3C6A3A00B70CED /* ModelChinese.swift */,
 				D49BB49E2C3C629A00B70CED /* MyPortfolioChineseView.swift */,
 				D49BB49C2C3C628D00B70CED /* MyPortfolioView.swift */,
 				D49BB49A2C3C627F00B70CED /* SettingsView.swift */,
@@ -300,7 +297,6 @@
 				D49BB49F2C3C629A00B70CED /* MyPortfolioChineseView.swift in Sources */,
 				D49BB4952C3C625500B70CED /* HomeChineseView.swift in Sources */,
 				D49BB49D2C3C628D00B70CED /* MyPortfolioView.swift in Sources */,
-				D49BB4A32C3C6A3A00B70CED /* ModelChinese.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

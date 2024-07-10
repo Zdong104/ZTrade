@@ -209,12 +209,15 @@ struct HomeView: View {
                             VStack(alignment: .leading) {
                                 Text("Basket:")
                                     .font(.headline)
-                                HStack {
-                                    ForEach(basket, id: \.self) { stock in
-                                        Text(stock.uppercased())
-                                            .padding(5)
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(8)
+                                ForEach(basket.chunked(into: 6), id: \.self) { row in
+                                    HStack {
+                                        ForEach(row, id: \.self) { stock in
+                                            Text(stock.uppercased())
+                                                .padding(5)
+                                                .background(Color.gray.opacity(0.2))
+                                                .cornerRadius(8)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
                                     }
                                 }
                             }
