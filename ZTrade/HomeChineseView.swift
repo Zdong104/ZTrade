@@ -14,15 +14,23 @@ struct ModelInputChinese: Codable {
     var totalAmount: Double
     var startDate: Date
     var endDate: Date
-    var IsChinese: Bool
+    var useChinese: Bool
 }
 
 struct ModelOutputChinese: Codable {
-    var meanReturns: [Double]
-    var Allocated_Weights: [Double]
-    var Expected_annual_return: [Double]
-    var Annual_volatility: [Double]
-    var Sharpe_Ratio: [Double]
+    var meanReturns: [String]
+    var Allocated_Weights: [String]
+    var Expected_annual_return: String
+    var Annual_volatility: String
+    var Sharpe_Ratio: String
+    
+    enum CodingKeys: String, CodingKey {
+        case meanReturns
+        case Allocated_Weights
+        case Expected_annual_return = "Expected_annual_return:"
+        case Annual_volatility = "Annual_volatility:"
+        case Sharpe_Ratio = "Sharpe_Ratio:"
+    }
 }
 
 struct HomeChineseView: View {
@@ -138,7 +146,7 @@ struct HomeChineseView: View {
             totalAmount: Double(totalAmount) ?? 1000.0,
             startDate: startDate,
             endDate: endDate,
-            IsChinese: useChinese
+            useChinese: useChinese
         )
         
         // Log the collected data for debugging
@@ -152,17 +160,15 @@ struct HomeChineseView: View {
 
         // Serialize the data to JSON
         guard let jsonData = try? JSONEncoder().encode(dataToSend) else {
-            print("Failed to encode data")
             return
         }
 
         // Create the URL request
-        let url = URL(string: "http://127.0.0.1:6000/process")!
+        let url = URL(string: "http://10.152.39.174:6000/process")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
-        print(jsonData)
 
         // Send the request
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -351,46 +357,37 @@ struct HomeChineseView: View {
                                     .background(Color.yellow.opacity(0.2))
                                     .cornerRadius(8)
                                 ForEach(0..<results.meanReturns.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.meanReturns[index], specifier: "%.4f")")
-                                }
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.meanReturns[index])")
+                                    }
                                 Text("分配比例权重:")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.blue.opacity(0.2))
                                     .cornerRadius(8)
                                 ForEach(0..<results.Allocated_Weights.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Allocated_Weights[index], specifier: "%.2f")")
-                                }
-                                Text("期望回报值:")
+                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Allocated_Weights[index])")
+                                    }
+                                Text("期望回报值: \(results.Expected_annual_return)")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.green.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.Expected_annual_return.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Expected_annual_return[index], specifier: "%.2f")")
-                                }
                                 
-                                Text("最Annual_volatility:")
+                                Text("年波动率: \(results.Annual_volatility)")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.blue.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.Annual_volatility.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Annual_volatility[index], specifier: "%.2f")")
-                                }
                                 
-                                Text("最Sharpe_Ratio:")
+                                Text("夏普比率: \(results.Sharpe_Ratio)")
                                     .font(.headline)
                                     .padding()
-                                    .background(Color.blue.opacity(0.2))
+                                    .background(Color.orange.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.Sharpe_Ratio.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Sharpe_Ratio[index], specifier: "%.2f")")
-                                }
-                                
-                                
                             }
                         }
+                        
+                        
                     }
                     .padding()
                 }

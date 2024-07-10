@@ -16,15 +16,18 @@ struct QuestionsChineseView: View {
                     .fontWeight(.bold)
                     .padding(.top, 40)
 
-                Chinese_SectionView(header: "平均回报率", text: "平均回报率是在指定时间段内投资的平均回报。它是通过将所有回报相加并除以期间数来计算的。")
+                Chinese_SectionView(header: "平均回报率", text: "平均回报率是在一年间投资的平均回报。它是通过将所有回报相加并除以期间数来计算的。")
                 
-                Chinese_SectionView(header: "最大夏普比率权重", text: "最大夏普比率权重指的是最大化夏普比率的资产配置。夏普比率是风险调整后的回报的衡量标准，它是通过将投资组合回报和无风险利率之间的差额除以投资组合的标准差来计算的。请注意，这些信息不提供关于做空的建议。")
+                SectionView(header: "分配比例权重:", text: "分配比例权重代表投资组合中分配给每个资产的总投资比例。它反映了不同资产之间的投资分布。")
+                    
+                SectionView(header: "期望年回报率:", text: "期望年回报率是基于历史表现或其他预测方法对一年内投资回报的预期。它提供了对未来回报的估计。")
                 
-                Chinese_SectionView(header: "等风险贡献（ERC）权重", text: "等风险贡献（ERC）权重是一种资产配置策略，每种资产对总体投资组合风险的贡献相同。这种方法旨在实现资产之间的平衡风险分布。请注意，这些信息不提供关于做空的建议。")
+                SectionView(header: "夏普比率", text: "夏普比率在调整风险后衡量投资相对于无风险资产的表现。它通过将超额回报除以投资回报的标准差来计算。")
                 
-                Chinese_SectionView(header: "无风险利率", text: "无风险利率是没有财务损失风险的投资回报。它通常以政府债券（如美国国债）的收益率表示。")
+                SectionView(header: "无风险利率", text: "无风险利率是指没有财务损失风险的投资回报率。它通常以政府债券的收益率表示，例如美国国债。")
                 
-                Chinese_SectionView(header: "默认日期范围", text: "投资模型的默认日期范围设置为30天。这意味着分析和计算将基于过去30天的股票数据。")
+                SectionView(header: "默认日期范围", text: "投资模型的默认日期范围设置为2016-5-18 到今天。这意味着分析和计算将基于过去30天的股票数据。")
+
                 
                 Chinese_SymbolSectionView()
                 

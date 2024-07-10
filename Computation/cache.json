@@ -1,0 +1,23 @@
+
+// Test Case Chinese
+
+{
+    "useChinese": true,
+    "basket": ["600031.SS", "601668.SS", "601988.SS"],
+    "riskFreeRate": 0.0,
+    "totalAmount": 1000.0,
+    "startDate": "2024-06-10T18:51:43Z",
+    "endDate": "2024-07-10T18:51:43Z"
+}
+
+
+// Test Case English
+
+{
+    "useChinese": false, 
+    "basket": ["aapl", "amd", "nvda"], 
+    "riskFreeRate": 0.0, 
+    "totalAmount": 1000.0, 
+    "startDate": "2024-06-10T18:51:43Z", 
+    "endDate": "2024-07-10T18:51:43Z"
+}

@@ -9,13 +9,23 @@ struct ModelInput: Codable {
     var totalAmount: Double
     var startDate: Date
     var endDate: Date
-    var IsChinese: Bool
+    var useChinese: Bool
 }
 
 struct ModelOutput: Codable {
-    var meanReturns: [Double]
-    var maxSharpeWeights: [Double]
-    var ercWeights: [Double]
+    var meanReturns: [String]
+    var Allocated_Weights: [String]
+    var Expected_annual_return: String
+    var Annual_volatility: String
+    var Sharpe_Ratio: String
+    
+    enum CodingKeys: String, CodingKey {
+        case meanReturns
+        case Allocated_Weights
+        case Expected_annual_return = "Expected_annual_return:"
+        case Annual_volatility = "Annual_volatility:"
+        case Sharpe_Ratio = "Sharpe_Ratio:"
+    }
 }
 
 struct HomeView: View {
@@ -83,7 +93,7 @@ struct HomeView: View {
             totalAmount: Double(totalAmount) ?? 1000.0,
             startDate: startDate,
             endDate: endDate,
-            IsChinese: useChinese
+            useChinese: useChinese
         )
         
         // Log the collected data for debugging
@@ -101,7 +111,7 @@ struct HomeView: View {
         }
 
         // Create the URL request
-        let url = URL(string: "http://127.0.0.1:6000/process")!
+        let url = URL(string: "http://10.152.39.174:6000/process")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -298,24 +308,36 @@ struct HomeView: View {
                                     .background(Color.yellow.opacity(0.2))
                                     .cornerRadius(8)
                                 ForEach(0..<results.meanReturns.count, id: \.self) { index in
-                                    Text("\(basket[index].uppercased()): \(results.meanReturns[index], specifier: "%.4f")")
+                                    Text("\(basket[index].uppercased()): \(results.meanReturns[index])")
                                 }
-                                Text("Max Sharpe Ratio Weights:")
+
+                                Text("Allocated Weights:")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.blue.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.maxSharpeWeights.count, id: \.self) { index in
-                                    Text("\(basket[index].uppercased()): \(results.maxSharpeWeights[index], specifier: "%.2f")")
+                                ForEach(0..<results.Allocated_Weights.count, id: \.self) { index in
+                                    Text("\(basket[index].uppercased()): \(results.Allocated_Weights[index])")
                                 }
-                                Text("Equal Risk Contribution (ERC) Weights:")
+                                
+                                Text("Expected Annual Return:\(results.Expected_annual_return)")
                                     .font(.headline)
                                     .padding()
                                     .background(Color.green.opacity(0.2))
                                     .cornerRadius(8)
-                                ForEach(0..<results.ercWeights.count, id: \.self) { index in
-                                    Text("\(basket[index].uppercased()): \(results.ercWeights[index], specifier: "%.2f")")
-                                }
+                                
+                                Text("Annual Volatility:\(results.Annual_volatility)")
+                                    .font(.headline)
+                                    .padding()
+                                    .background(Color.blue.opacity(0.2))
+                                    .cornerRadius(8)
+                                
+                                
+                                Text("Sharpe Ratio:\(results.Sharpe_Ratio)")
+                                    .font(.headline)
+                                    .padding()
+                                    .background(Color.orange.opacity(0.2))
+                                    .cornerRadius(8)
                             }
                         }
                     }
@@ -327,14 +349,14 @@ struct HomeView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
-    
-    func saveSettings() {
-        // Save the settings, e.g., to UserDefaults or your app's state management
-        UserDefaults.standard.set(useChinese, forKey: "useChinese")
-        UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
-        // Any additional logic to handle the settings changes
-        print("Settings saved: useChinese=\(useChinese), isDarkMode=\(isDarkMode)")
-    }
+        
+        func saveSettings() {
+            // Save the settings, e.g., to UserDefaults or your app's state management
+            UserDefaults.standard.set(useChinese, forKey: "useChinese")
+            UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
+            // Any additional logic to handle the settings changes
+            print("Settings saved: useChinese=\(useChinese), isDarkMode=\(isDarkMode)")
+        }
 }
 
 // Helper function to chunk an array into subarrays of a given size

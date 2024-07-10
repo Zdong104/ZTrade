@@ -16,15 +16,17 @@ struct QuestionsView: View {
                     .fontWeight(.bold)
                     .padding(.top, 40)
 
-                SectionView(header: "Mean Return Percentage", text: "Mean return percentage is the average return of an investment over a specified period of time. It is calculated by taking the sum of all returns and dividing it by the number of periods.")
+                SectionView(header: "Mean Return Percentage", text: "Mean return percentage is the average return of an investment over a year. It is calculated by taking the sum of all returns and dividing it by the number of periods.")
                 
-                SectionView(header: "Max Sharpe Ratio Weight", text: "Max Sharpe Ratio Weight refers to the asset allocation that maximizes the Sharpe ratio. The Sharpe ratio is a measure of risk-adjusted return, calculated by dividing the difference between the portfolio return and the risk-free rate by the portfolio's standard deviation. Please note, this information does not provide advice about buying short.")
-                
-                SectionView(header: "Equal Risk Contribution (ERC) Weight", text: "Equal Risk Contribution (ERC) Weight is an asset allocation strategy where each asset contributes equally to the overall portfolio risk. This method aims to achieve a balanced risk distribution among the assets. Please note, this information does not provide advice about buying short.")
+                SectionView(header: "Allocated Weights:", text: "Allocated weights represent the proportion of the total investment allocated to each asset in the portfolio. It reflects the distribution of investment across different assets.")
+                    
+                SectionView(header: "Expected Annual Return:", text: "Expected annual return is the anticipated return on an investment over one year, based on historical performance or other predictive methods. It provides an estimate of future returns.")
+                    
+                SectionView(header: "Sharpe Ratio", text: "Sharpe ratio measures the performance of an investment compared to a risk-free asset, after adjusting for its risk. It is calculated by dividing the excess return by the standard deviation of the investment's returns.")
                 
                 SectionView(header: "Risk-Free Rate", text: "The risk-free rate is the return on an investment with no risk of financial loss. It is often represented by the yield on government bonds, such as U.S. Treasury bonds.")
                 
-                SectionView(header: "Default Date Range", text: "The default date range for the investment model is set to a 30-day period. This means the analysis and calculations will be based on the stock data from the past 30 days.")
+                SectionView(header: "Default Date Range", text: "The default date range for the investment models are set to 2012-05-18 to Today. This means the analysis and calculations will be based on the stock data from the past 30 days.")
                 
                 SymbolSectionView()
                 
