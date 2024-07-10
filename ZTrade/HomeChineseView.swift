@@ -396,6 +396,7 @@ struct HomeChineseView: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     func saveSettings() {
         UserDefaults.standard.set(useChinese, forKey: "useChinese")

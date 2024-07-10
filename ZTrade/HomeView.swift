@@ -348,6 +348,7 @@ struct HomeView: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
         
         func saveSettings() {
