@@ -7,7 +7,6 @@
 import SwiftUI
 import Combine
 
-
 struct ModelInputChinese: Codable {
     var basket: [String]
     var riskFreeRate: Double
@@ -46,6 +45,7 @@ struct HomeChineseView: View {
     @State private var results: ModelOutputChinese? = nil
     @Environment(\.colorScheme) var colorScheme
     @State private var showingAlert = false
+    @State private var isLoading: Bool = false // Loading state to control the overlay
 
     struct Results {
         var meanReturns: [Double]
@@ -139,6 +139,8 @@ struct HomeChineseView: View {
             showingAlert = true
             return
         }
+        
+        isLoading = true // Show loading overlay
 
         let dataToSend = ModelInputChinese(
             basket: basket,
@@ -156,15 +158,16 @@ struct HomeChineseView: View {
         print("Total Amount: \(totalAmount)")
         print("Start Date: \(startDate)")
         print("End Date: \(endDate)")
-        
 
         // Serialize the data to JSON
         guard let jsonData = try? JSONEncoder().encode(dataToSend) else {
+            print("Failed to encode data")
+            isLoading = false // Hide loading overlay
             return
         }
 
         // Create the URL request
-        let url = URL(string: "http://10.152.39.174:6000/process")!
+        let url = URL(string: "http://172.210.178.32:6000/process")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -174,10 +177,16 @@ struct HomeChineseView: View {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Error: \(error)")
+                DispatchQueue.main.async {
+                    isLoading = false // Hide loading overlay
+                }
                 return
             }
             guard let data = data else {
                 print("No data received")
+                DispatchQueue.main.async {
+                    isLoading = false // Hide loading overlay
+                }
                 return
             }
             
@@ -187,217 +196,227 @@ struct HomeChineseView: View {
             }
             
             // Decode the response
-                do {
-                    let modelOutput = try JSONDecoder().decode(ModelOutputChinese.self, from: data)
-                    DispatchQueue.main.async {
-                        // Update your results here
-                        results = modelOutput
-                    }
-                } catch {
-                    print("Failed to decode response: \(error)")
+            do {
+                let modelOutput = try JSONDecoder().decode(ModelOutputChinese.self, from: data)
+                DispatchQueue.main.async {
+                    results = modelOutput
+                    isLoading = false // Hide loading overlay
+                }
+            } catch {
+                print("Failed to decode response: \(error)")
+                DispatchQueue.main.async {
+                    isLoading = false // Hide loading overlay
                 }
             }
+        }
         task.resume()
     }
 
     var body: some View {
-        NavigationView {
-            VStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        HStack {
-                            Text("选择股票:")
-                                .font(.headline)
-                            Spacer()
-                            NavigationLink(destination: SettingsView(useChinese: $useChinese, isDarkMode: $isDarkMode)) {
-                                Image(systemName: "ellipsis")
-                                    .font(.title2)
-                                    .padding()
+        ZStack {
+            NavigationView {
+                VStack {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 20) {
+                            HStack {
+                                Text("选择股票:")
+                                    .font(.headline)
+                                Spacer()
+                                NavigationLink(destination: SettingsView(useChinese: $useChinese, isDarkMode: $isDarkMode)) {
+                                    Image(systemName: "ellipsis")
+                                        .font(.title2)
+                                        .padding()
+                                }
                             }
-                        }
 
-                        TextField("搜索股票...", text: $searchTerm)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(8)
+                            TextField("搜索股票...", text: $searchTerm)
+                                .padding()
+                                .background(Color(UIColor.secondarySystemBackground))
+                                .cornerRadius(8)
 
-
-                        VStack(spacing: 12) {
-                            ForEach(filteredStocks.chunkedChinese(into: 4), id: \.self) { row in
-                                HStack {
-                                    ForEach(row, id: \.self) { stock in
-                                        Button(action: {
-                                            toggleStockSelection(stock: stock)
-                                        }) {
-                                            Text(stockMap[stock] ?? stock)
-                                                .foregroundColor(.white)
-                                                .frame(maxWidth: .infinity)
-                                                .frame(height: 40)
-                                                .background(selectedStocks.contains(stock) ? Color.green : Color.gray)
-                                                .cornerRadius(8)
-                                                .font(.system(size: 16))
-                                                .fixedSize(horizontal: false, vertical: true)
+                            VStack(spacing: 12) {
+                                ForEach(filteredStocks.chunkedChinese(into: 4), id: \.self) { row in
+                                    HStack {
+                                        ForEach(row, id: \.self) { stock in
+                                            Button(action: {
+                                                toggleStockSelection(stock: stock)
+                                            }) {
+                                                Text(stockMap[stock] ?? stock)
+                                                    .foregroundColor(.white)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 40)
+                                                    .background(selectedStocks.contains(stock) ? Color.green : Color.gray)
+                                                    .cornerRadius(8)
+                                                    .font(.system(size: 16))
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        HStack {
-                            Button(action: addToBasket) {
-                                Text("添加股票")
+                            HStack {
+                                Button(action: addToBasket) {
+                                    Text("添加股票")
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .cornerRadius(8)
+                                }
+                                Button(action: clearBasket) {
+                                    Text("清除选中")
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.red)
+                                        .cornerRadius(8)
+                                }
+                            }
+
+                            if !basket.isEmpty {
+                                VStack(alignment: .leading) {
+                                    Text("已选股票:")
+                                        .font(.headline)
+                                    ForEach(basket.chunked(into: 4), id: \.self) { row in
+                                        HStack {
+                                            ForEach(row, id: \.self) { stock in
+                                                Text(stockMap[stock] ?? stock)
+                                                    .padding(5)
+                                                    .background(Color.gray.opacity(0.2))
+                                                    .cornerRadius(8)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            VStack(alignment: .leading) {
+                                Text("零风险利率:")
+                                    .font(.headline)
+                                TextField("输入零风险利率", text: $riskFreeRate)
+                                    .padding()
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(8)
+                                    .onReceive(Just(riskFreeRate)) { newValue in
+                                        let filtered = newValue.filter { "0123456789.".contains($0) }
+                                        let decimalCount = filtered.filter { $0 == "." }.count
+                                        if decimalCount > 1 {
+                                            let firstDecimalIndex = filtered.firstIndex(of: ".")!
+                                            self.riskFreeRate = String(filtered.prefix(through: firstDecimalIndex) + filtered.dropFirst(firstDecimalIndex.utf16Offset(in: filtered) + 1).filter { $0 != "." })
+                                        } else {
+                                            self.riskFreeRate = filtered
+                                        }
+                                    }
+                            }
+
+                            VStack(alignment: .leading) {
+                                Text("可分配总金额:")
+                                    .font(.headline)
+                                TextField("输入总金额", text: $totalAmount)
+                                    .padding()
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(8)
+                                    .onReceive(Just(totalAmount)) { newValue in
+                                        let filtered = newValue.filter { "0123456789.".contains($0) }
+                                        let decimalCount = filtered.filter { $0 == "." }.count
+                                        if decimalCount > 1 {
+                                            let firstDecimalIndex = filtered.firstIndex(of: ".")!
+                                            self.totalAmount = String(filtered.prefix(through: firstDecimalIndex) + filtered.dropFirst(firstDecimalIndex.utf16Offset(in: filtered) + 1).filter { $0 != "." })
+                                        } else {
+                                            self.totalAmount = filtered
+                                        }
+                                    }
+                            }
+                            
+                            HStack {
+                                VStack {
+                                    Text("选择开始日期")
+                                        .font(.subheadline)
+                                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                }
+                                VStack {
+                                    Text("选择结束日期")
+                                        .font(.subheadline)
+                                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                }
+                            }
+                            .padding()
+                            
+                            Button(action: fetchDataAndRunModel) {
+                                Text("开始")
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(Color.blue)
                                     .cornerRadius(8)
                             }
-                            Button(action: clearBasket) {
-                                Text("清除选中")
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.red)
-                                    .cornerRadius(8)
+                            .alert(isPresented: $showingAlert) {
+                                Alert(title: Text("没有选择股票"), message: Text("请在运行模型之前至少选择一只股票。"), dismissButton: .default(Text("确定")))
                             }
-                        }
 
-                        if !basket.isEmpty {
-                            VStack(alignment: .leading) {
-                                Text("已选股票:")
-                                    .font(.headline)
-                                ForEach(basket.chunked(into: 4), id: \.self) { row in
-                                    HStack {
-                                        ForEach(row, id: \.self) { stock in
-                                            Text(stockMap[stock] ?? stock)
-                                                .padding(5)
-                                                .background(Color.gray.opacity(0.2))
-                                                .cornerRadius(8)
-                                                .fixedSize(horizontal: false, vertical: true)
-                                        }
+                            if let results = results {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text("平均收益率 %:")
+                                        .font(.headline)
+                                        .padding()
+                                        .background(Color.yellow.opacity(0.2))
+                                        .cornerRadius(8)
+                                    ForEach(0..<results.meanReturns.count, id: \.self) { index in
+                                        Text("\(stockMap[basket[index]] ?? basket[index]): \(results.meanReturns[index])")
                                     }
-                                }
-                            }
-                        }
-
-                        VStack(alignment: .leading) {
-                            Text("零风险利率:")
-                                .font(.headline)
-                            TextField("输入零风险利率", text: $riskFreeRate)
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(8)
-                                .onReceive(Just(riskFreeRate)) { newValue in
-                                    let filtered = newValue.filter { "0123456789.".contains($0) }
-                                    let decimalCount = filtered.filter { $0 == "." }.count
-                                    if decimalCount > 1 {
-                                        let firstDecimalIndex = filtered.firstIndex(of: ".")!
-                                        self.riskFreeRate = String(filtered.prefix(through: firstDecimalIndex) + filtered.dropFirst(firstDecimalIndex.utf16Offset(in: filtered) + 1).filter { $0 != "." })
-                                    } else {
-                                        self.riskFreeRate = filtered
+                                    Text("分配比例权重:")
+                                        .font(.headline)
+                                        .padding()
+                                        .background(Color.blue.opacity(0.2))
+                                        .cornerRadius(8)
+                                    ForEach(0..<results.Allocated_Weights.count, id: \.self) { index in
+                                        Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Allocated_Weights[index])")
                                     }
+                                    Text("期望回报值: \(results.Expected_annual_return)")
+                                        .font(.headline)
+                                        .padding()
+                                        .background(Color.green.opacity(0.2))
+                                        .cornerRadius(8)
+                                    
+                                    Text("年波动率: \(results.Annual_volatility)")
+                                        .font(.headline)
+                                        .padding()
+                                        .background(Color.blue.opacity(0.2))
+                                        .cornerRadius(8)
+                                    
+                                    Text("夏普比率: \(results.Sharpe_Ratio)")
+                                        .font(.headline)
+                                        .padding()
+                                        .background(Color.orange.opacity(0.2))
+                                        .cornerRadius(8)
                                 }
-                        }
-
-                        VStack(alignment: .leading) {
-                            Text("可分配总金额:")
-                                .font(.headline)
-                            TextField("输入总金额", text: $totalAmount)
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(8)
-                                .onReceive(Just(totalAmount)) { newValue in
-                                    let filtered = newValue.filter { "0123456789.".contains($0) }
-                                    let decimalCount = filtered.filter { $0 == "." }.count
-                                    if decimalCount > 1 {
-                                        let firstDecimalIndex = filtered.firstIndex(of: ".")!
-                                        self.totalAmount = String(filtered.prefix(through: firstDecimalIndex) + filtered.dropFirst(firstDecimalIndex.utf16Offset(in: filtered) + 1).filter { $0 != "." })
-                                    } else {
-                                        self.totalAmount = filtered
-                                    }
-                                }
-                        }
-                        
-                        HStack {
-                            VStack {
-                                Text("选择开始日期")
-                                    .font(.subheadline)
-                                DatePicker("", selection: $startDate, displayedComponents: .date)
-                                    .labelsHidden()
-                            }
-                            VStack {
-                                Text("选择结束日期")
-                                    .font(.subheadline)
-                                DatePicker("", selection: $endDate, displayedComponents: .date)
-                                    .labelsHidden()
                             }
                         }
                         .padding()
-
-
-                        
-
-                        Button(action: fetchDataAndRunModel) {
-                            Text("开始")
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                        }
-                        .alert(isPresented: $showingAlert) {
-                            Alert(title: Text("没有选择股票"), message: Text("请在运行模型之前至少选择一只股票。"), dismissButton: .default(Text("确定")))
-                        }
-
-                        if let results = results {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("平均收益率 %:")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.yellow.opacity(0.2))
-                                    .cornerRadius(8)
-                                ForEach(0..<results.meanReturns.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.meanReturns[index])")
-                                    }
-                                Text("分配比例权重:")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.blue.opacity(0.2))
-                                    .cornerRadius(8)
-                                ForEach(0..<results.Allocated_Weights.count, id: \.self) { index in
-                                    Text("\(stockMap[basket[index]] ?? basket[index]): \(results.Allocated_Weights[index])")
-                                    }
-                                Text("期望回报值: \(results.Expected_annual_return)")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.green.opacity(0.2))
-                                    .cornerRadius(8)
-                                
-                                Text("年波动率: \(results.Annual_volatility)")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.blue.opacity(0.2))
-                                    .cornerRadius(8)
-                                
-                                Text("夏普比率: \(results.Sharpe_Ratio)")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.orange.opacity(0.2))
-                                    .cornerRadius(8)
-                            }
-                        }
-                        
-                        
                     }
-                    .padding()
+                    .navigationTitle("")
+                    .navigationBarTitleDisplayMode(.inline)
                 }
-                .navigationTitle("")
-                .navigationBarTitleDisplayMode(.inline)
+                .ignoresSafeArea(.keyboard, edges: .bottom)
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .navigationViewStyle(StackNavigationViewStyle())
+            
+            if isLoading {
+                ZStack {
+                    Color.black.opacity(0.5)
+                        .edgesIgnoringSafeArea(.all)
+                    ProgressView("加载中...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                }
+            }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
+
     func saveSettings() {
         UserDefaults.standard.set(useChinese, forKey: "useChinese")
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")

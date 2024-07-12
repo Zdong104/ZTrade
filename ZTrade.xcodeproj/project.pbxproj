@@ -21,7 +21,6 @@
 		D49BB49B2C3C627F00B70CED /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49A2C3C627F00B70CED /* SettingsView.swift */; };
 		D49BB49D2C3C628D00B70CED /* MyPortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49C2C3C628D00B70CED /* MyPortfolioView.swift */; };
 		D49BB49F2C3C629A00B70CED /* MyPortfolioChineseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49BB49E2C3C629A00B70CED /* MyPortfolioChineseView.swift */; };
-		D49BB4AB2C3DA67700B70CED /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = D49BB4AA2C3DA67700B70CED /* PythonKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D46835D52C40B2C600B1D06C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D49BB4642C3C619B00B70CED /* ZTrade.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZTrade.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49BB4672C3C619B00B70CED /* ZTradeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTradeApp.swift; sourceTree = "<group>"; };
 		D49BB4692C3C619B00B70CED /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -67,7 +67,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D49BB4AB2C3DA67700B70CED /* PythonKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +110,7 @@
 		D49BB4662C3C619B00B70CED /* ZTrade */ = {
 			isa = PBXGroup;
 			children = (
+				D46835D52C40B2C600B1D06C /* Info.plist */,
 				D49BB4672C3C619B00B70CED /* ZTradeApp.swift */,
 				D49BB4692C3C619B00B70CED /* ContentView.swift */,
 				D49BB4922C3C61BE00B70CED /* HomeView.swift */,
@@ -169,7 +169,6 @@
 			);
 			name = ZTrade;
 			packageProductDependencies = (
-				D49BB4AA2C3DA67700B70CED /* PythonKit */,
 			);
 			productName = ZTrade;
 			productReference = D49BB4642C3C619B00B70CED /* ZTrade.app */;
@@ -244,7 +243,6 @@
 			);
 			mainGroup = D49BB45B2C3C619B00B70CED;
 			packageReferences = (
-				D49BB4A62C3DA16300B70CED /* XCRemoteSwiftPackageReference "PythonKit" */,
 			);
 			productRefGroup = D49BB4652C3C619B00B70CED /* Products */;
 			projectDirPath = "";
@@ -460,6 +458,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ZTrade/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ZTrade;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -474,8 +475,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ainsight.ZTrade;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ainsight.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -499,6 +500,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ZTrade/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ZTrade;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -513,8 +517,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ainsight.ZTrade;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ainsight.Test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -655,25 +659,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D49BB4A62C3DA16300B70CED /* XCRemoteSwiftPackageReference "PythonKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pvieito/PythonKit.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D49BB4AA2C3DA67700B70CED /* PythonKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D49BB4A62C3DA16300B70CED /* XCRemoteSwiftPackageReference "PythonKit" */;
-			productName = PythonKit;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D49BB45C2C3C619B00B70CED /* Project object */;
 }
